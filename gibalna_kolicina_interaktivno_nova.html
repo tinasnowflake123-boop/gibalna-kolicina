@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gibalna količina – interaktivni prikaz</title>
+<style>
+  :root { font-family: Arial, sans-serif; color: #182230; background: #f4f7fb; }
+  body { margin: 0; padding: 28px 16px; }
+  main { max-width: 900px; margin: 0 auto; background: white; padding: 28px; border-radius: 18px; box-shadow: 0 8px 30px #16243a12; }
+  h1 { margin-top: 0; font-size: clamp(1.5rem, 4vw, 2rem); }
+  .intro { color: #536273; line-height: 1.5; }
+  .formula { text-align: center; font-size: 2rem; font-weight: 700; margin: 22px 0; padding: 18px; background: #f1f5fb; border-radius: 12px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .control { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+  label { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; margin-bottom: 12px; }
+  output { color: #2457a7; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: #2457a7; }
+  .scene { margin: 26px 0 18px; padding: 20px; border-radius: 14px; background: linear-gradient(#eef6ff, #f8fbff); }
+  .track { display: flex; align-items: end; justify-content: space-around; min-height: 145px; border-bottom: 3px solid #8293a8; gap: 20px; }
+  .object-wrap { width: 42%; text-align: center; }
+  .dot { margin: 0 auto 10px; border-radius: 50%; background: #3678c8; border: 3px solid #205a9f; transition: width .15s, height .15s; }
+  .dot.second { background: #e69b36; border-color: #ad6b15; }
+  .object-label { font-weight: 700; }
+  .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .result { padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .result strong { display: block; margin-bottom: 6px; }
+  .value { font-size: 1.55rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .note { margin-top: 20px; padding: 14px 16px; background: #fff8e8; border-left: 4px solid #e3a12e; border-radius: 8px; line-height: 1.5; }
+  footer { margin-top: 22px; color: #718096; font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Gibalna količina – vpliv mase in hitrosti</h1>
+  <p class="intro">Spreminjaj maso obeh teles in njuno skupno hitrost. Opazuj, kako se spreminja gibalna količina.</p>
+  <div class="formula">p = m · v</div>
+
+  <section class="controls" aria-label="Nastavitve">
+    <div class="control">
+      <label for="m1">Masa telesa 1 <output id="m1out">50 kg</output></label>
+      <input id="m1" type="range" min="20" max="100" step="1" value="50">
+    </div>
+    <div class="control">
+      <label for="m2">Masa telesa 2 <output id="m2out">70 kg</output></label>
+      <input id="m2" type="range" min="20" max="100" step="1" value="70">
+    </div>
+    <div class="control">
+      <label for="v">Hitrost obeh teles <output id="vout">10 m/s</output></label>
+      <input id="v" type="range" min="0" max="30" step="0.5" value="10">
+    </div>
+  </section>
+
+  <section class="scene" aria-label="Prikaz teles">
+    <div class="track">
+      <div class="object-wrap">
+        <div id="dot1" class="dot"></div>
+        <div class="object-label">Telo 1</div>
+      </div>
+      <div class="object-wrap">
+        <div id="dot2" class="dot second"></div>
+        <div class="object-label">Telo 2</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="results">
+    <div class="result">
+      <strong>Gibalna količina telesa 1</strong>
+      <div class="value" id="p1">500</div>
+      <div>kg · m/s</div>
+    </div>
+    <div class="result">
+      <strong>Gibalna količina telesa 2</strong>
+      <div class="value" id="p2">700</div>
+      <div>kg · m/s</div>
+    </div>
+  </section>
+
+  <div class="note" id="explain">Pri enaki hitrosti ima telo z večjo maso večjo gibalno količino.</div>
+  <footer>Model prikazuje gibalno količino pri gibanju v isti smeri. Velikost kroga je ponazoritev mase, ne merilo hitrosti.</footer>
+</main>
+<script>
+const ids = ['m1','m2','v'];
+const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+function update() {
+  const m1 = Number(el.m1.value), m2 = Number(el.m2.value), v = Number(el.v.value);
+  const p1 = m1*v, p2 = m2*v;
+  document.getElementById('m1out').textContent = `${m1} kg`;
+  document.getElementById('m2out').textContent = `${m2} kg`;
+  document.getElementById('vout').textContent = `${v} m/s`;
+  document.getElementById('p1').textContent = p1.toLocaleString('sl-SI', {maximumFractionDigits:1});
+  document.getElementById('p2').textContent = p2.toLocaleString('sl-SI', {maximumFractionDigits:1});
+  const size1 = 42 + (m1-20)*0.85, size2 = 42 + (m2-20)*0.85;
+  document.getElementById('dot1').style.width = `${size1}px`;
+  document.getElementById('dot1').style.height = `${size1}px`;
+  document.getElementById('dot2').style.width = `${size2}px`;
+  document.getElementById('dot2').style.height = `${size2}px`;
+  let msg;
+  if (v === 0) msg = 'Pri hitrosti 0 m/s je gibalna količina obeh teles enaka 0, ne glede na njuno maso.';
+  else if (m1 === m2) msg = 'Ker imata telesi enako maso in enako hitrost, imata tudi enako gibalno količino.';
+  else msg = `Pri enaki hitrosti ima ${m1 > m2 ? 'telo 1' : 'telo 2'} zaradi večje mase večjo gibalno količino.`;
+  document.getElementById('explain').textContent = msg;
+}
+ids.forEach(id => el[id].addEventListener('input', update));
+update();
+</script>
+</body>
+</html>
